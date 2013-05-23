@@ -1,0 +1,16 @@
+*.sdf
+*.suo
+*.user
+_ReSharper.*
+packages
+[Oo]bj
+[Bb]in
+*/**/bin
+*/**/obj
+[Dd]ebug
+[Rr]elsease
+[Tt]humbs.db
+.DS_Store*
+*.[Pp]ublish.xml
+*.orig
+TestResults
