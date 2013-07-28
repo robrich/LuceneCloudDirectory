@@ -19,12 +19,15 @@
 			if ( string.IsNullOrEmpty( AmazonKey ) ) {
 				throw new ArgumentNullException( "AmazonKey" );
 			}
-			if ( string.IsNullOrEmpty( AmazonSecret ) ) {
-				throw new ArgumentNullException( "AmazonSecret" );
+			if (string.IsNullOrEmpty(AmazonSecret)) {
+				throw new ArgumentNullException("AmazonSecret");
+			}
+			if (string.IsNullOrEmpty(AmazonBucket)) {
+				throw new ArgumentNullException("AmazonBucket");
 			}
 			this.amazonKey = AmazonKey;
 			this.amazonSecret = AmazonSecret;
-			this.amazonBucket = !string.IsNullOrEmpty( this.amazonBucket ) ? AmazonBucket.ToLowerInvariant() : "lucene";
+			this.amazonBucket = AmazonBucket;
 		}
 
 		public void InitializeStorage() {
@@ -90,13 +93,13 @@
 				try {
 					GetObjectMetadataResponse response = client.GetObjectMetadata( request );
 
-					results.Exists = (response.StatusCode == HttpStatusCode.OK);
+					results.Exists = true; // else AWSSDK threw
 					results.Length = response.ContentLength;
 					results.LastModified = response.LastModified;
 
 				} catch ( AmazonS3Exception ex ) {
 					if ( ex.ErrorCode == "NoSuchKey" ) {
-						return null; // File doesn't exist
+						results.Exists = false; // File doesn't exist
 					} else {
 						throw;
 					}
@@ -163,15 +166,15 @@
 				return false;
 			}
 			using ( MemoryStream ms = new MemoryStream() ) {
-				this.Upload( name + ".lock", ms, new FileMetadata() );
+				this.Upload( name, ms, new FileMetadata() );
 			}
 			return true;
 		}
 		public void Releaselock( string name ) {
-			this.Delete( name + ".lock" );
+			this.Delete( name );
 		}
 		public bool IsLocked( string name ) {
-			return this.FileMetadata( name + ".lock" ).Exists;
+			return this.FileMetadata( name ).Exists;
 		}
 
 	}

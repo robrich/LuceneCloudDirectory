@@ -29,6 +29,11 @@
 				if ( !cloudMetadata.Exists ) {
 					fFileNeeded = false;
 					// TODO: Delete local if it doesn't exist on cloud?
+					/*
+					if (CacheDirectory.FileExists(this.name)) {
+						CacheDirectory.DeleteFile(this.name);
+					}
+					*/
 				} else if ( !CacheDirectory.FileExists( this.name ) ) {
 					fFileNeeded = true;
 				} else {

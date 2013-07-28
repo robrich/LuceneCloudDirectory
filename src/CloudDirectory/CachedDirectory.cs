@@ -127,6 +127,7 @@
 		/// <summary>Construct a {@link Lock}.</summary>
 		/// <param name="name">the name of the lock file</param>
 		public override Lock MakeLock( string name ) {
+			Debug.Assert( name.EndsWith( ".lock" ) );
 			lock ( this._locks ) {
 				if ( !this._locks.ContainsKey( name ) ) {
 					string cloudName = this.GetCloudName( name );
@@ -137,6 +138,7 @@
 		}
 
 		public override void ClearLock( string name ) {
+			Debug.Assert( name.EndsWith( ".lock" ) );
 			lock ( this._locks ) {
 				if ( this._locks.ContainsKey( name ) ) {
 					this._locks[name].Release();
