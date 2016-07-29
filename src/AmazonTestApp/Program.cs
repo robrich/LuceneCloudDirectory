@@ -10,8 +10,9 @@
 			// TODO: Fill in these settings in App.config
 			string amazonKey = ConfigurationManager.AppSettings["AmazonKey"];
 			string amazonSecret = ConfigurationManager.AppSettings["AmazonSecret"];
-			string bucket = ConfigurationManager.AppSettings["AmazonBucket"]; // Must be unique among all buckets in the region
-			ICloudProvider provider = new AmazonCloudProvider( amazonKey, amazonSecret, bucket );
+			string bucket = ConfigurationManager.AppSettings["AmazonBucket"];
+			string region = ConfigurationManager.AppSettings["AmazonRegion"];
+			ICloudProvider provider = new AmazonCloudProvider( amazonKey, amazonSecret, bucket, region );
 
 			Program p = new Program();
 			p.RunIndexOperations( provider );

@@ -14,8 +14,9 @@
 		private readonly string amazonKey;
 		private readonly string amazonSecret;
 		private readonly string amazonBucket;
+		private readonly RegionEndpoint amazonRegion;
 
-		public AmazonCloudProvider( string AmazonKey, string AmazonSecret, string AmazonBucket ) {
+        public AmazonCloudProvider( string AmazonKey, string AmazonSecret, string AmazonBucket, string AmazonRegion ) {
 			if ( string.IsNullOrEmpty( AmazonKey ) ) {
 				throw new ArgumentNullException( "AmazonKey" );
 			}
@@ -25,14 +26,18 @@
 			if (string.IsNullOrEmpty(AmazonBucket)) {
 				throw new ArgumentNullException("AmazonBucket");
 			}
+			if (string.IsNullOrEmpty(AmazonRegion)) {
+				throw new ArgumentNullException("AmazonRegion");
+			}
 			this.amazonKey = AmazonKey;
 			this.amazonSecret = AmazonSecret;
 			this.amazonBucket = AmazonBucket;
+			this.amazonRegion = RegionEndpoint.GetBySystemName(AmazonRegion);
 		}
 
 		public void InitializeStorage() {
 			// If these error with things like invalid credentials, now you know
-			using ( AmazonS3 client = AWSClientFactory.CreateAmazonS3Client( this.amazonKey, this.amazonSecret ) ) {
+			using ( var client = new AmazonS3Client( this.amazonKey, this.amazonSecret, this.amazonRegion) ) {
 
 				ListBucketsRequest request = new ListBucketsRequest {
 				};
@@ -55,7 +60,7 @@
 		public List<string> ListAll() {
 
 			List<string> files = new List<string>();
-			using ( AmazonS3 client = AWSClientFactory.CreateAmazonS3Client( this.amazonKey, this.amazonSecret ) ) {
+			using ( var client = new AmazonS3Client( this.amazonKey, this.amazonSecret, this.amazonRegion) ) {
 
 				ListObjectsRequest request = new ListObjectsRequest {
 					BucketName = this.amazonBucket
@@ -83,7 +88,7 @@
 			FileMetadata results = new FileMetadata {
 				Name = name
 			};
-			using ( AmazonS3 client = AWSClientFactory.CreateAmazonS3Client( this.amazonKey, this.amazonSecret ) ) {
+			using ( var client = new AmazonS3Client( this.amazonKey, this.amazonSecret, this.amazonRegion) ) {
 
 				GetObjectMetadataRequest request = new GetObjectMetadataRequest {
 					BucketName = this.amazonBucket,
@@ -98,7 +103,7 @@
 					results.LastModified = response.LastModified;
 
 				} catch ( AmazonS3Exception ex ) {
-					if ( ex.ErrorCode == "NoSuchKey" ) {
+					if ( ex.ErrorCode == "NoSuchKey" || ex.ErrorCode == "NotFound" ) {
 						results.Exists = false; // File doesn't exist
 					} else {
 						throw;
@@ -109,7 +114,7 @@
 			return results;
 		}
 		public void Delete( string name ) {
-			using ( AmazonS3 client = AWSClientFactory.CreateAmazonS3Client( this.amazonKey, this.amazonSecret ) ) {
+			using ( var client = new AmazonS3Client( this.amazonKey, this.amazonSecret, this.amazonRegion) ) {
 				DeleteObjectRequest request = new DeleteObjectRequest {
 					BucketName = this.amazonBucket,
 					Key = name
@@ -121,7 +126,7 @@
 			}
 		}
 		public Stream Download( string name ) {
-			using ( AmazonS3 client = AWSClientFactory.CreateAmazonS3Client( this.amazonKey, this.amazonSecret ) ) {
+			using ( var client = new AmazonS3Client( this.amazonKey, this.amazonSecret, this.amazonRegion) ) {
 
 				GetObjectRequest request = new GetObjectRequest {
 					BucketName = this.amazonBucket,
@@ -147,7 +152,7 @@
 			}
 		}
 		public void Upload( string name, Stream content, FileMetadata FileMetadata ) {
-			using ( AmazonS3 client = AWSClientFactory.CreateAmazonS3Client( this.amazonKey, this.amazonSecret ) ) {
+			 using ( var client = new AmazonS3Client( this.amazonKey, this.amazonSecret, this.amazonRegion) ) {
 				PutObjectRequest request = new PutObjectRequest {
 					BucketName = this.amazonBucket,
 					Key = name,
