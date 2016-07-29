@@ -50,7 +50,7 @@
 						LastModified = new DateTime( this.cacheDirectory.FileModified( this.name ) ),
 						Length = originalLength
 					} );
-					Debug.WriteLine( "PUT {1} bytes to {0} in cloud", this.name, blobStream.Length );
+					Debug.WriteLine( "PUT {0} in cloud", this.name );
 				}
 
 #if FULLDEBUG
